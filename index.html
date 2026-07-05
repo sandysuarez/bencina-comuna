@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bencina por Comuna — Precios y descuentos del día</title>
+<meta name="description" content="Compara precios de bencina (93, 95, 97, diésel) por comuna en Chile, actualizados diariamente, y revisa los descuentos vigentes hoy.">
+<style>
+  :root{
+    --bg:#f6f8fa; --card:#ffffff; --card2:#eef2f6; --text:#1f2937; --muted:#64748b;
+    --accent:#16a34a; --accent2:#15803d; --warn:#b45309; --border:#dde5ec; --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+  .wrap{max-width:1000px;margin:0 auto;padding:16px}
+  header{padding:28px 16px 8px;text-align:center}
+  header h1{font-size:1.7rem}
+  header h1 span{color:var(--accent)}
+  header p{color:var(--muted);margin-top:6px;font-size:.95rem}
+  .fecha-datos{font-size:.8rem;color:var(--muted);text-align:center;margin-top:4px}
+  .filtros{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:18px 0}
+  .filtros label{font-size:.75rem;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+  select,input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:.95rem}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:18px}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center}
+  .stat .v{font-size:1.35rem;font-weight:700;color:var(--accent2)}
+  .stat .l{font-size:.75rem;color:var(--muted)}
+  h2{font-size:1.1rem;margin:22px 0 10px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;box-shadow:0 1px 3px rgba(15,23,42,.06)}
+  .card.mejor{border-color:var(--accent)}
+  .badge-mejor{background:var(--accent);color:#052e16;font-weight:700;font-size:.7rem;padding:2px 8px;border-radius:99px}
+  .logo{width:46px;height:46px;border-radius:8px;object-fit:contain;background:#fff;border:1px solid var(--border);flex:none}
+  .info{flex:1;min-width:180px}
+  .info .marca{font-weight:700}
+  .info .dir{color:var(--muted);font-size:.85rem}
+  .info .act{color:var(--muted);font-size:.75rem}
+  .precio{text-align:right}
+  .precio .p{font-size:1.4rem;font-weight:800;color:var(--accent2)}
+  .precio .u{font-size:.7rem;color:var(--muted)}
+  .desc-hoy{background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1px solid #86efac;border-radius:var(--radius);padding:14px;margin-bottom:10px}
+  .desc-hoy h3{font-size:.95rem;margin-bottom:8px}
+  .desc-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:.9rem}
+  .desc-item b{color:var(--warn)}
+  .desc-item .m{color:var(--muted);font-size:.8rem}
+  .tag-dia{display:inline-block;background:var(--card2);border:1px solid var(--border);border-radius:99px;padding:2px 10px;font-size:.72rem;color:var(--muted);margin-right:4px}
+  .semana{display:none}
+  .semana.abierta{display:block}
+  .btn{background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;font-size:.85rem}
+  .btn:hover{border-color:var(--accent)}
+  .aviso{background:var(--card);border:1px dashed var(--border);border-radius:var(--radius);padding:14px;color:var(--muted);font-size:.85rem;margin:10px 0}
+  footer{margin:32px 0 20px;color:var(--muted);font-size:.78rem;text-align:center}
+  footer a{color:var(--accent2)}
+  .cargando{text-align:center;padding:40px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <h1>⛽ Bencina por <span>Comuna</span></h1>
+  <p>Precios oficiales actualizados a diario (fuente: CNE) y descuentos vigentes hoy.</p>
+  <div class="fecha-datos" id="fechaDatos"></div>
+</header>
+
+<div class="wrap">
+
+  <section id="descuentos">
+    <h2 id="tituloHoy">🎉 Descuentos de hoy</h2>
+    <div class="desc-hoy" id="descHoy"><div class="cargando">Cargando descuentos…</div></div>
+    <button class="btn" id="btnSemana">Ver todos los descuentos de la semana</button>
+    <div class="semana" id="descSemana"></div>
+  </section>
+
+  <h2>💰 Compara precios en tu comuna</h2>
+  <div class="filtros">
+    <div><label for="fRegion">Región</label><select id="fRegion"></select></div>
+    <div><label for="fComuna">Comuna</label><select id="fComuna"></select></div>
+    <div><label for="fComb">Combustible</label>
+      <select id="fComb">
+        <option value="93">Gasolina 93</option>
+        <option value="95">Gasolina 95</option>
+        <option value="97">Gasolina 97</option>
+        <option value="DI">Diésel</option>
+        <option value="GLP">GLP Vehicular</option>
+        <option value="GNC">GNC</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div id="lista"><div class="cargando">Cargando estaciones…</div></div>
+
+  <footer>
+    Datos de precios: <a href="https://www.bencinaenlinea.cl" target="_blank" rel="noopener">Bencina en Línea — Comisión Nacional de Energía (CNE)</a>.
+    Descuentos referenciales según información pública de cada distribuidora y banco; verifica condiciones antes de cargar.
+    Este sitio no tiene fines de lucro.
+  </footer>
+</div>
+
+<script>
+const API = 'https://api.bencinaenlinea.cl/api/busqueda_estacion_filtro?region=13';
+const MARCAS = {2:'PETROBRAS',3:'TERPEL',4:'SHELL',5:'COPEC',88:'ENEX',114:'YPF',131:'GULF',151:'ARAMCO',23:'ABASTIBLE',24:'LIPIGAS',28:'AUTOGASCO',10:'SIN BANDERA',118:'SIN BANDERA'};
+const DIAS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+// Respaldo embebido: se usa si no se puede leer data/descuentos.json
+// (p. ej. al abrir el archivo con doble clic). Al publicar en GitHub Pages
+// siempre se intenta primero el JSON, que es el que actualizas mes a mes.
+const DESCUENTOS_FALLBACK = {
+  "mes": "Julio 2026",
+  "descuentos": [
+    {"dias":[1],"marca":"ARAMCO","medio":"Tarjeta de crédito Banco Consorcio pagando con App Aramco","beneficio":"$150 de devolución por litro"},
+    {"dias":[2],"marca":"SHELL","medio":"Tarjeta Lider Bci pagando con App Shell","beneficio":"$100 de descuento por litro"},
+    {"dias":[2],"marca":"COPEC","medio":"Tarjeta de crédito Banco Internacional pagando con App Copec","beneficio":"$100 de descuento por litro"},
+    {"dias":[3],"marca":"ARAMCO","medio":"Tarjetas de crédito o débito Ripley","beneficio":"Hasta $150 de cashback por litro"},
+    {"dias":[4],"marca":"VARIAS","medio":"Clientes Banco Bci","beneficio":"Devolución del 7% del monto cargado (tope diario $7.000)"},
+    {"dias":[5],"marca":"COPEC","medio":"Tarjeta de crédito o prepago Tenpo vía billetera digital","beneficio":"Cashback de $50 a $300 por litro"},
+    {"dias":[5],"marca":"SHELL","medio":"Tarjeta de crédito o prepago Tenpo vía billetera digital","beneficio":"Cashback de $50 a $300 por litro"},
+    {"dias":[5],"marca":"ARAMCO","medio":"Tarjeta de crédito o prepago Tenpo vía billetera digital","beneficio":"Cashback de $50 a $300 por litro"},
+    {"dias":[6],"marca":"COPEC","medio":"Tarjeta de crédito MACHBANK pagando con App Copec","beneficio":"$100 de descuento por litro"},
+    {"dias":[0],"marca":"SHELL","medio":"Tarjeta de crédito Banco BICE","beneficio":"$100 de descuento por litro"}
+  ]
+};
+let estaciones = [], marcasApi = {};
+
+const $ = id => document.getElementById(id);
+const fmt = n => '$' + Math.round(n).toLocaleString('es-CL');
+
+async function cargarJson(url){
+  const r = await fetch(url, {cache:'no-store'});
+  if(!r.ok) throw new Error(url + ' → ' + r.status);
+  return r.json();
+}
+
+async function cargarEstaciones(){
+  // 1) snapshot diario generado por GitHub Actions; 2) API en vivo como respaldo
+  try{
+    const j = await cargarJson('data/estaciones.json');
+    $('fechaDatos').textContent = 'Datos actualizados: ' + (j.fecha || 'hoy');
+    return j.data;
+  }catch(e){
+    const j = await cargarJson(API);
+    $('fechaDatos').textContent = 'Datos en vivo desde la API de la CNE';
+    return j.data;
+  }
+}
+
+function nombreMarca(e){
+  return marcasApi[e.marca] || MARCAS[e.marca] || 'Otra bandera';
+}
+
+function poblarFiltros(){
+  const regiones = [...new Set(estaciones.map(e=>e.region))].sort((a,b)=>a.localeCompare(b,'es'));
+  $('fRegion').innerHTML = regiones.map(r=>`<option ${r==='Metropolitana de Santiago'?'selected':''}>${r}</option>`).join('');
+  poblarComunas();
+}
+
+function poblarComunas(){
+  const reg = $('fRegion').value;
+  const comunas = [...new Set(estaciones.filter(e=>e.region===reg).map(e=>e.comuna))].sort((a,b)=>a.localeCompare(b,'es'));
+  $('fComuna').innerHTML = '<option value="">Todas las comunas</option>' + comunas.map(c=>`<option>${c}</option>`).join('');
+}
+
+function precioDe(e, comb){
+  const c = (e.combustibles||[]).find(x=>x.nombre_corto===comb && x.suministra);
+  return c ? {precio: parseFloat(c.precio), fecha: c.precio_fecha, unidad: c.unidad_cobro, act: c.actualizado} : null;
+}
+
+function render(){
+  const reg = $('fRegion').value, com = $('fComuna').value, comb = $('fComb').value;
+  let lista = estaciones.filter(e=>e.region===reg && (!com || e.comuna===com));
+  const filas = lista.map(e=>({e, p: precioDe(e, comb)})).filter(x=>x.p && x.p.precio>0)
+                     .sort((a,b)=>a.p.precio-b.p.precio);
+  if(!filas.length){
+    $('stats').innerHTML = '';
+    $('lista').innerHTML = '<div class="aviso">No hay estaciones con ese combustible en la selección. Prueba otra comuna o combustible.</div>';
+    return;
+  }
+  const precios = filas.map(x=>x.p.precio);
+  const min = Math.min(...precios), max = Math.max(...precios),
+        prom = precios.reduce((a,b)=>a+b,0)/precios.length;
+  $('stats').innerHTML = `
+    <div class="stat"><div class="v">${fmt(min)}</div><div class="l">Más barato</div></div>
+    <div class="stat"><div class="v">${fmt(prom)}</div><div class="l">Promedio</div></div>
+    <div class="stat"><div class="v">${fmt(max)}</div><div class="l">Más caro</div></div>
+    <div class="stat"><div class="v">${fmt(max-min)}</div><div class="l">Ahorro posible/L</div></div>`;
+  $('lista').innerHTML = filas.map((x,i)=>`
+    <div class="card ${i===0?'mejor':''}">
+      <img class="logo" src="${x.e.logo||''}" alt="" onerror="this.style.visibility='hidden'">
+      <div class="info">
+        <div class="marca">${nombreMarca(x.e)} ${i===0?'<span class="badge-mejor">MÁS BARATA</span>':''}</div>
+        <div class="dir">${x.e.direccion||''} · ${x.e.comuna}</div>
+        <div class="act">Precio informado ${x.p.act||''}</div>
+      </div>
+      <div class="precio"><div class="p">${fmt(x.p.precio)}</div><div class="u">${x.p.unidad||'$/L'}</div></div>
+    </div>`).join('');
+}
+
+function renderDescuentos(dj){
+  const hoy = new Date().getDay();
+  $('tituloHoy').textContent = `🎉 Descuentos de hoy (${DIAS[hoy]}) — ${dj.mes||''}`;
+  const deHoy = dj.descuentos.filter(d=>d.dias.includes(hoy));
+  $('descHoy').innerHTML = deHoy.length
+    ? deHoy.map(d=>`<div class="desc-item">⛽ <b>${d.marca}</b>: ${d.beneficio}<div class="m">${d.medio}</div></div>`).join('')
+    : '<div class="desc-item">Hoy no hay descuentos registrados. Revisa el resto de la semana 👇</div>';
+  $('descSemana').innerHTML = [1,2,3,4,5,6,0].map(dia=>{
+    const ds = dj.descuentos.filter(d=>d.dias.includes(dia));
+    if(!ds.length) return '';
+    return `<h3 style="margin:14px 0 6px;font-size:.9rem"><span class="tag-dia">${DIAS[dia]}</span></h3>` +
+      ds.map(d=>`<div class="desc-item"><b>${d.marca}</b>: ${d.beneficio}<div class="m">${d.medio}</div></div>`).join('');
+  }).join('');
+}
+
+$('btnSemana').onclick = () => {
+  const s = $('descSemana');
+  s.classList.toggle('abierta');
+  $('btnSemana').textContent = s.classList.contains('abierta') ? 'Ocultar descuentos de la semana' : 'Ver todos los descuentos de la semana';
+};
+$('fRegion').onchange = () => { poblarComunas(); render(); };
+$('fComuna').onchange = render;
+$('fComb').onchange = render;
+
+(async () => {
+  try{
+    const dj = await cargarJson('data/descuentos.json').catch(()=>DESCUENTOS_FALLBACK);
+    renderDescuentos(dj);
+  }catch(e){
+    renderDescuentos(DESCUENTOS_FALLBACK);
+  }
+  try{
+    try{ marcasApi = Object.fromEntries((await cargarJson('data/marcas.json')).map(m=>[m.id,m.nombre])); }catch(e){}
+    estaciones = await cargarEstaciones();
+    poblarFiltros();
+    render();
+  }catch(e){
+    $('lista').innerHTML = '<div class="aviso">No se pudieron cargar los precios. Si abriste el archivo con doble clic, usa un servidor local (<code>python -m http.server</code>) o publica la página en GitHub Pages; ahí funciona sin problemas.</div>';
+  }
+})();
+</script>
+</body>
+</html>
