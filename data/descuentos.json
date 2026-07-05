@@ -1,0 +1,88 @@
+{
+  "actualizado": "2026-07-02",
+  "mes": "Julio 2026",
+  "fuente": "https://chocale.cl/2026/07/descuentos-en-bencina-combustibles-julio-2026-shell-copec-aramco/",
+  "nota": "Revisa siempre las condiciones con tu banco o distribuidora antes de cargar. dias: 0=domingo, 1=lunes ... 6=sabado",
+  "descuentos": [
+    {
+      "dias": [
+        1
+      ],
+      "marca": "ARAMCO",
+      "medio": "Tarjeta de crédito Banco Consorcio pagando con App Aramco",
+      "beneficio": "$150 de devolución por litro"
+    },
+    {
+      "dias": [
+        2
+      ],
+      "marca": "SHELL",
+      "medio": "Tarjeta Lider Bci pagando con App Shell",
+      "beneficio": "$100 de descuento por litro"
+    },
+    {
+      "dias": [
+        2
+      ],
+      "marca": "COPEC",
+      "medio": "Tarjeta de crédito Banco Internacional pagando con App Copec",
+      "beneficio": "$100 de descuento por litro"
+    },
+    {
+      "dias": [
+        3
+      ],
+      "marca": "ARAMCO",
+      "medio": "Tarjetas de crédito o débito Ripley",
+      "beneficio": "Hasta $150 de cashback por litro"
+    },
+    {
+      "dias": [
+        4
+      ],
+      "marca": "VARIAS",
+      "medio": "Clientes Banco Bci",
+      "beneficio": "Devolución del 7% del monto cargado (tope diario $7.000)"
+    },
+    {
+      "dias": [
+        5
+      ],
+      "marca": "COPEC",
+      "medio": "Tarjeta de crédito o prepago Tenpo vía billetera digital",
+      "beneficio": "Cashback de $50 a $300 por litro"
+    },
+    {
+      "dias": [
+        5
+      ],
+      "marca": "SHELL",
+      "medio": "Tarjeta de crédito o prepago Tenpo vía billetera digital",
+      "beneficio": "Cashback de $50 a $300 por litro"
+    },
+    {
+      "dias": [
+        5
+      ],
+      "marca": "ARAMCO",
+      "medio": "Tarjeta de crédito o prepago Tenpo vía billetera digital",
+      "beneficio": "Cashback de $50 a $300 por litro"
+    },
+    {
+      "dias": [
+        6
+      ],
+      "marca": "COPEC",
+      "medio": "Tarjeta de crédito MACHBANK pagando con App Copec",
+      "beneficio": "$100 de descuento por litro"
+    },
+    {
+      "dias": [
+        0
+      ],
+      "marca": "SHELL",
+      "medio": "Tarjeta de crédito Banco BICE",
+      "beneficio": "$100 de descuento por litro"
+    }
+  ]
+}
