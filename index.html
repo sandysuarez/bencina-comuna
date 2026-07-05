@@ -62,8 +62,8 @@
   .pop-rutas a{flex:1;text-align:center;text-decoration:none;font-size:.78rem;font-weight:600;padding:6px 8px;border-radius:8px;border:1px solid var(--border);color:var(--text)}
   .pop-rutas a.gmaps{background:#e8f0fe;border-color:#c6dafc;color:#1a56db}
   .pop-rutas a.waze{background:#e0f7fb;border-color:#bde9f2;color:#0891b2}
-  .card-rutas{flex-basis:100%;display:flex;gap:8px;margin-top:6px}
-  .card-rutas a{text-decoration:none;font-size:.82rem;font-weight:600;padding:8px 12px;border-radius:9px;border:1px solid var(--border);color:var(--text)}
+  .card-rutas{flex-basis:100%;display:flex;gap:6px;margin-top:4px}
+  .card-rutas a{text-decoration:none;font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--border);color:var(--text)}
   .card-rutas a.gmaps{background:#e8f0fe;border-color:#c6dafc;color:#1a56db}
   .card-rutas a.waze{background:#e0f7fb;border-color:#bde9f2;color:#0891b2}
   .card-rutas a:hover{filter:brightness(.96)}
@@ -173,8 +173,8 @@ function rutasHtml(e, clase){
   const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
   const waze = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
   return `<div class="${clase}">
-      <a class="gmaps" href="${gmaps}" target="_blank" rel="noopener">🧭 Google Maps</a>
-      <a class="waze" href="${waze}" target="_blank" rel="noopener">🚗 Waze</a>
+      <a class="gmaps" href="${gmaps}" target="_blank" rel="noopener">Google Maps</a>
+      <a class="waze" href="${waze}" target="_blank" rel="noopener">Waze</a>
     </div>`;
 }
 
@@ -199,7 +199,7 @@ function renderMapa(filas){
   filas.forEach((x,i) => {
     const lat = parseFloat(x.e.latitud), lng = parseFloat(x.e.longitud);
     if(!isFinite(lat) || !isFinite(lng)) return;
-    const m = L.marker([lat,lng], {icon: iconoPrecio(x.p.precio, i===0)})
+    const m = L.marker([lat,lng], {icon: iconoPrecio(x.p.precio, i===0), zIndexOffset: i===0 ? 100000 : 0})
                .bindPopup(popupHtml(x, i===0));
     capaMarcadores.addLayer(m);
     puntos.push([lat,lng]);
