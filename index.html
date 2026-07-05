@@ -62,6 +62,11 @@
   .pop-rutas a{flex:1;text-align:center;text-decoration:none;font-size:.78rem;font-weight:600;padding:6px 8px;border-radius:8px;border:1px solid var(--border);color:var(--text)}
   .pop-rutas a.gmaps{background:#e8f0fe;border-color:#c6dafc;color:#1a56db}
   .pop-rutas a.waze{background:#e0f7fb;border-color:#bde9f2;color:#0891b2}
+  .card-rutas{flex-basis:100%;display:flex;gap:8px;margin-top:6px}
+  .card-rutas a{text-decoration:none;font-size:.82rem;font-weight:600;padding:8px 12px;border-radius:9px;border:1px solid var(--border);color:var(--text)}
+  .card-rutas a.gmaps{background:#e8f0fe;border-color:#c6dafc;color:#1a56db}
+  .card-rutas a.waze{background:#e0f7fb;border-color:#bde9f2;color:#0891b2}
+  .card-rutas a:hover{filter:brightness(.96)}
   .toggle-vista{display:inline-flex;gap:6px;margin-bottom:12px}
   .toggle-vista button{background:var(--card2);border:1px solid var(--border);border-radius:99px;padding:6px 14px;cursor:pointer;font-size:.82rem;color:var(--muted)}
   .toggle-vista button.activo{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
@@ -148,28 +153,37 @@ let mapa = null, capaMarcadores = null;
 const $ = id => document.getElementById(id);
 const fmt = n => '$' + Math.round(n).toLocaleString('es-CL');
 
-// Íconos de color: verde para la más barata, azul para el resto
-function icono(color){
+// Marcador con etiqueta de precio: verde (más barata) o azul; la más barata
+// se ve más grande y con estrella para distinguirla de un vistazo.
+function iconoPrecio(precio, esMasBarata){
+  const bg = esMasBarata ? '#16a34a' : '#2563eb';
+  const escala = esMasBarata ? 'transform:scale(1.15);z-index:1000' : '';
+  const estrella = esMasBarata ? '⭐ ' : '';
   return L.divIcon({
     className: '',
-    html: `<div style="background:${color};width:18px;height:18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,
-    iconSize: [18,18], iconAnchor: [9,18], popupAnchor: [0,-16]
+    html: `<div style="background:${bg};color:#fff;font-weight:700;font-size:11px;line-height:1;padding:4px 7px;border-radius:9px;white-space:nowrap;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);${escala}">${estrella}${fmt(precio)}</div>`,
+    iconSize: [50,22], iconAnchor: [25,22], popupAnchor: [0,-20]
   });
 }
-const ICONO_BARATA = icono('#16a34a'), ICONO_NORMAL = icono('#2563eb');
 
-function popupHtml(x, esMasBarata){
-  const lat = parseFloat(x.e.latitud), lng = parseFloat(x.e.longitud);
+// Botones de ruta reutilizables (mapa y lista)
+function rutasHtml(e, clase){
+  const lat = parseFloat(e.latitud), lng = parseFloat(e.longitud);
+  if(!isFinite(lat) || !isFinite(lng)) return '';
   const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
   const waze = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+  return `<div class="${clase}">
+      <a class="gmaps" href="${gmaps}" target="_blank" rel="noopener">🧭 Google Maps</a>
+      <a class="waze" href="${waze}" target="_blank" rel="noopener">🚗 Waze</a>
+    </div>`;
+}
+
+function popupHtml(x, esMasBarata){
   return `
-    <div class="pop-marca">${nombreMarca(x.e)} ${esMasBarata?'🟢':''}</div>
+    <div class="pop-marca">${nombreMarca(x.e)} ${esMasBarata?'⭐':''}</div>
     <div class="pop-dir">${x.e.direccion||''} · ${x.e.comuna}</div>
     <div class="pop-precio">${fmt(x.p.precio)} <span style="font-weight:400;color:#64748b;font-size:.72rem">${x.p.unidad||'$/L'}</span></div>
-    <div class="pop-rutas">
-      <a class="gmaps" href="${gmaps}" target="_blank" rel="noopener">Google Maps</a>
-      <a class="waze" href="${waze}" target="_blank" rel="noopener">Waze</a>
-    </div>`;
+    ${rutasHtml(x.e, 'pop-rutas')}`;
 }
 
 function renderMapa(filas){
@@ -185,7 +199,7 @@ function renderMapa(filas){
   filas.forEach((x,i) => {
     const lat = parseFloat(x.e.latitud), lng = parseFloat(x.e.longitud);
     if(!isFinite(lat) || !isFinite(lng)) return;
-    const m = L.marker([lat,lng], {icon: i===0?ICONO_BARATA:ICONO_NORMAL})
+    const m = L.marker([lat,lng], {icon: iconoPrecio(x.p.precio, i===0)})
                .bindPopup(popupHtml(x, i===0));
     capaMarcadores.addLayer(m);
     puntos.push([lat,lng]);
@@ -264,6 +278,7 @@ function render(){
         <div class="act">Precio informado ${x.p.act||''}</div>
       </div>
       <div class="precio"><div class="p">${fmt(x.p.precio)}</div><div class="u">${x.p.unidad||'$/L'}</div></div>
+      ${rutasHtml(x.e, 'card-rutas')}
     </div>`).join('');
   renderMapa(filas);
 }
