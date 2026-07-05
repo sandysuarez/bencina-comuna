@@ -2,6 +2,7 @@
 """Descarga el snapshot diario de precios desde la API pública de la CNE
 (Bencina en Línea) y lo guarda en data/estaciones.json y data/marcas.json.
 Se ejecuta automáticamente con GitHub Actions (ver .github/workflows)."""
+import gzip
 import json
 import urllib.request
 from datetime import datetime, timezone, timedelta
@@ -16,9 +17,15 @@ CAMPOS_COMBUSTIBLE = ("nombre_corto", "nombre_largo", "suministra", "precio",
 
 
 def fetch(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "bencina-comuna/1.0 (sitio sin fines de lucro)"})
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "bencina-comuna/1.0 (sitio sin fines de lucro)",
+        "Accept-Encoding": "gzip, identity",
+    })
     with urllib.request.urlopen(req, timeout=120) as r:
-        return json.load(r)
+        raw = r.read()
+    if raw[:2] == b"\x1f\x8b":  # magic number gzip
+        raw = gzip.decompress(raw)
+    return json.loads(raw.decode("utf-8"))
 
 
 def main():
