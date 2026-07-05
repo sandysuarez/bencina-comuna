@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bencina por Comuna — Precios y descuentos del día</title>
 <meta name="description" content="Compara precios de bencina (93, 95, 97, diésel) por comuna en Chile, actualizados diariamente, y revisa los descuentos vigentes hoy.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root{
     --bg:#f6f8fa; --card:#ffffff; --card2:#eef2f6; --text:#1f2937; --muted:#64748b;
@@ -51,6 +53,18 @@
   footer{margin:32px 0 20px;color:var(--muted);font-size:.78rem;text-align:center}
   footer a{color:var(--accent2)}
   .cargando{text-align:center;padding:40px;color:var(--muted)}
+  #mapa{height:380px;width:100%;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:14px;z-index:0}
+  .leaflet-popup-content{margin:10px 12px;font-family:inherit}
+  .pop-marca{font-weight:700;font-size:.95rem}
+  .pop-dir{color:var(--muted);font-size:.8rem;margin:2px 0 6px}
+  .pop-precio{font-weight:800;color:var(--accent2);font-size:1.1rem;margin-bottom:8px}
+  .pop-rutas{display:flex;gap:6px}
+  .pop-rutas a{flex:1;text-align:center;text-decoration:none;font-size:.78rem;font-weight:600;padding:6px 8px;border-radius:8px;border:1px solid var(--border);color:var(--text)}
+  .pop-rutas a.gmaps{background:#e8f0fe;border-color:#c6dafc;color:#1a56db}
+  .pop-rutas a.waze{background:#e0f7fb;border-color:#bde9f2;color:#0891b2}
+  .toggle-vista{display:inline-flex;gap:6px;margin-bottom:12px}
+  .toggle-vista button{background:var(--card2);border:1px solid var(--border);border-radius:99px;padding:6px 14px;cursor:pointer;font-size:.82rem;color:var(--muted)}
+  .toggle-vista button.activo{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 </style>
 </head>
 <body>
@@ -86,6 +100,12 @@
   </div>
 
   <div class="stats" id="stats"></div>
+
+  <div class="toggle-vista">
+    <button id="btnMapa" class="activo">🗺️ Mapa</button>
+    <button id="btnLista">📋 Lista</button>
+  </div>
+  <div id="mapa"></div>
   <div id="lista"><div class="cargando">Cargando estaciones…</div></div>
 
   <footer>
@@ -118,9 +138,58 @@ const DESCUENTOS_FALLBACK = {
   ]
 };
 let estaciones = [], marcasApi = {};
+let mapa = null, capaMarcadores = null;
 
 const $ = id => document.getElementById(id);
 const fmt = n => '$' + Math.round(n).toLocaleString('es-CL');
+
+// Íconos de color: verde para la más barata, azul para el resto
+function icono(color){
+  return L.divIcon({
+    className: '',
+    html: `<div style="background:${color};width:18px;height:18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>`,
+    iconSize: [18,18], iconAnchor: [9,18], popupAnchor: [0,-16]
+  });
+}
+const ICONO_BARATA = icono('#16a34a'), ICONO_NORMAL = icono('#2563eb');
+
+function popupHtml(x, esMasBarata){
+  const lat = parseFloat(x.e.latitud), lng = parseFloat(x.e.longitud);
+  const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  const waze = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
+  return `
+    <div class="pop-marca">${nombreMarca(x.e)} ${esMasBarata?'🟢':''}</div>
+    <div class="pop-dir">${x.e.direccion||''} · ${x.e.comuna}</div>
+    <div class="pop-precio">${fmt(x.p.precio)} <span style="font-weight:400;color:#64748b;font-size:.72rem">${x.p.unidad||'$/L'}</span></div>
+    <div class="pop-rutas">
+      <a class="gmaps" href="${gmaps}" target="_blank" rel="noopener">Google Maps</a>
+      <a class="waze" href="${waze}" target="_blank" rel="noopener">Waze</a>
+    </div>`;
+}
+
+function renderMapa(filas){
+  if(!mapa){
+    mapa = L.map('mapa', {scrollWheelZoom:false}).setView([-33.45,-70.66], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19, attribution: '© OpenStreetMap'
+    }).addTo(mapa);
+    capaMarcadores = L.layerGroup().addTo(mapa);
+  }
+  capaMarcadores.clearLayers();
+  const puntos = [];
+  filas.forEach((x,i) => {
+    const lat = parseFloat(x.e.latitud), lng = parseFloat(x.e.longitud);
+    if(!isFinite(lat) || !isFinite(lng)) return;
+    const m = L.marker([lat,lng], {icon: i===0?ICONO_BARATA:ICONO_NORMAL})
+               .bindPopup(popupHtml(x, i===0));
+    capaMarcadores.addLayer(m);
+    puntos.push([lat,lng]);
+  });
+  if(puntos.length){
+    mapa.fitBounds(puntos, {padding:[30,30], maxZoom:14});
+  }
+  setTimeout(() => mapa.invalidateSize(), 100);
+}
 
 async function cargarJson(url){
   const r = await fetch(url, {cache:'no-store'});
@@ -170,6 +239,7 @@ function render(){
   if(!filas.length){
     $('stats').innerHTML = '';
     $('lista').innerHTML = '<div class="aviso">No hay estaciones con ese combustible en la selección. Prueba otra comuna o combustible.</div>';
+    if(capaMarcadores) capaMarcadores.clearLayers();
     return;
   }
   const precios = filas.map(x=>x.p.precio);
@@ -190,6 +260,7 @@ function render(){
       </div>
       <div class="precio"><div class="p">${fmt(x.p.precio)}</div><div class="u">${x.p.unidad||'$/L'}</div></div>
     </div>`).join('');
+  renderMapa(filas);
 }
 
 function renderDescuentos(dj){
@@ -215,6 +286,21 @@ $('btnSemana').onclick = () => {
 $('fRegion').onchange = () => { poblarComunas(); render(); };
 $('fComuna').onchange = render;
 $('fComb').onchange = render;
+
+// Alternar vista mapa / lista
+$('btnMapa').onclick = () => {
+  $('mapa').style.display = 'block';
+  $('lista').style.display = 'none';
+  $('btnMapa').classList.add('activo');
+  $('btnLista').classList.remove('activo');
+  if(mapa) setTimeout(() => mapa.invalidateSize(), 60);
+};
+$('btnLista').onclick = () => {
+  $('mapa').style.display = 'none';
+  $('lista').style.display = 'block';
+  $('btnLista').classList.add('activo');
+  $('btnMapa').classList.remove('activo');
+};
 
 (async () => {
   try{
