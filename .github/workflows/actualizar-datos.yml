@@ -1,0 +1,32 @@
+name: Actualizar datos diariamente
+
+on:
+  schedule:
+    # 10:00 UTC = 06:00 Chile (verano) / 07:00 (invierno). Corre todos los dias.
+    - cron: '0 10 * * *'
+    # El dia 2 de cada mes tambien revisa la guia de descuentos.
+    - cron: '30 12 2 * *'
+  workflow_dispatch: {}   # permite ejecutarlo a mano desde la pestana Actions
+
+permissions:
+  contents: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Descargar precios desde la API de la CNE
+        run: python scripts/actualizar_datos.py
+
+      - name: Revisar guia de descuentos del mes (solo sugerencias)
+        run: python scripts/revisar_descuentos.py || true
+
+      - name: Publicar cambios
+        run: |
+          git config user.name "bot-actualizador"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "Datos actualizados $(date -u +%F)"
+          git push
