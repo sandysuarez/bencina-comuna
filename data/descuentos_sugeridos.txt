@@ -1,0 +1,13 @@
+Fuente: https://chocale.cl/2026/07/descuentos-en-bencina-combustibles-julio-2026-shell-copec-aramco/
+Extraído: 04-07-2026
+------------------------------------------------------------
+Lunes: Aramco ofrece una devolución de $150 por cada litro de combustible a los clientes que paguen con su tarjeta de crédito de Banco Consorcio a través de la aplicación de la bencinera.
+Martes: Los clientes de la tarjeta Lider Bci recibirán $100 de descuento por litro al pagar mediante la App Shell. En tanto, quienes utilicen la tarjeta de crédito de Banco Internacional podrán acceder a $100 de rebaja al pagar con la App Copec.
+Miércoles: Durante esta jornada es posible obtener hasta $150 de cashback por cada litro de combustible al pagar con tarjetas de crédito o débito Ripley en estaciones Aramco.
+Jueves: Los clientes de Banco Bci accederán a una devolución equivalente al 7% del monto cargado. El beneficio tiene un tope diario de $7.000.
+Viernes: Copec, Shell y Aramco ofrecen un cashback de entre $50 y $300 por litro al pagar con la tarjeta de crédito o prepago Tenpo mediante las billeteras digitales de cada compañía.
+Sábado: Al pagar con la tarjeta de crédito MACHBANK, es posible obtener $100 de descuento por litro a través de la app Copec.
+Domingo: Shell entrega $100 de descuento por litro de bencina para los clientes que paguen su carga con la tarjeta de crédito de Banco BICE.
+------------------------------------------------------------
+Revisa esto y actualiza data/descuentos.json a mano.
+Recuerda citar la fuente y verificar condiciones con cada banco/distribuidora.
