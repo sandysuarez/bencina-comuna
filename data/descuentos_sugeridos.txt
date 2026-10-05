@@ -1,7 +1,13 @@
-Fuente: https://chocale.cl/2026/10/cyber-monday-2026-ikea-ofrecera-descuentos-de-hasta-40-y-despachos-por-1-000/
-Extraído: 04-10-2026
+Fuente: https://chocale.cl/2026/10/descuentos-en-bencinas-combustibles-octubre-2026/
+Extraído: 05-10-2026
 ------------------------------------------------------------
-No se pudieron extraer líneas automáticamente; abre la fuente y copia a mano.
+Lunes: En la App Copec existen promociones de $100 de descuento por litro para clientes Cencosud Scotiabank y Jumbo Prime. En tanto, Aramco ofrece una devolución de $150 por cada litro al pagar con la tarjeta de crédito Banco Consorcio.
+Martes: Los clientes que tengan su tarjeta Lider Bci podrán acceder a $100 de descuento por litro al pagar en la App Shell. En tanto, quienes utilicen la tarjeta de crédito de Banco Internacional obtendrán $100 de ahorro a través de la App Copec.
+Miércoles: Durante esta jornada es posible obtener hasta $150 de cashback por cada litro de combustible al pagar con tarjetas de crédito o débito Ripley en estaciones Aramco.
+Jueves: Los clientes Scotiabank podrán recibir hasta $200 de rebaja por litro al pagar con la App Shell. El monto del beneficio dependerá de la tarjeta de crédito utilizada.
+Viernes: Copec, Shell y Aramco ofrecen un cashback desde $50 por litro al pagar con la tarjeta de crédito o prepago Tenpo mediante las billeteras digitales de cada compañía.
+Sábado: Al pagar con la tarjeta de crédito MACHBANK, es posible obtener $100 de descuento por litro a través de la app Copec.
+Domingo: Shell entrega $100 de descuento por litro de bencina a los clientes que paguen su carga con la tarjeta de crédito de Banco BICE.
 ------------------------------------------------------------
 Revisa esto y actualiza data/descuentos.json a mano.
 Recuerda citar la fuente y verificar condiciones con cada banco/distribuidora.
